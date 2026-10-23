@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/bg_surface"
+    android:padding="24dp">
+
+    <!-- Bottom Sheet Drag Handle -->
+    <View
+        android:layout_width="36dp"
+        android:layout_height="4dp"
+        android:background="@drawable/bg_meta_chip"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:id="@+id/textRoleDialogTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Configure Collaborator Role"
+        android:textColor="@color/text_primary"
+        android:textSize="18sp"
+        android:fontFamily="sans-serif-medium"
+        android:layout_marginBottom="4dp"/>
+
+    <TextView
+        android:id="@+id/textRoleDialogSubtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select role tier and folder permissions."
+        android:textColor="@color/text_secondary"
+        android:textSize="13sp"
+        android:layout_marginBottom="18dp"/>
+
+    <!-- Role Selection Radio Group -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="PERMISSION TIER"
+        android:textColor="@color/text_secondary"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:letterSpacing="0.08"
+        android:layout_marginBottom="8dp"/>
+
+    <RadioGroup
+        android:id="@+id/radioGroupRoles"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp">
+
+        <RadioButton
+            android:id="@+id/radioRoleAdmin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Admin (Full Control)"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp"
+            android:buttonTint="@color/primary"
+            android:paddingVertical="8dp"/>
+
+        <RadioButton
+            android:id="@+id/radioRoleUploader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Uploader (Read &amp; Upload Files)"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp"
+            android:buttonTint="@color/primary"
+            android:checked="true"
+            android:paddingVertical="8dp"/>
+
+        <RadioButton
+            android:id="@+id/radioRoleViewer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Viewer (Read-Only Access)"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp"
+            android:buttonTint="@color/primary"
+            android:paddingVertical="8dp"/>
+    </RadioGroup>
+
+    <!-- Scope Selection -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="STORAGE SCOPE"
+        android:textColor="@color/text_secondary"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:letterSpacing="0.08"
+        android:layout_marginBottom="8dp"/>
+
+    <RadioGroup
+        android:id="@+id/radioGroupScope"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp">
+
+        <RadioButton
+            android:id="@+id/radioScopeEntire"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Full Storage (/)"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp"
+            android:buttonTint="@color/primary"
+            android:checked="true"
+            android:paddingVertical="8dp"/>
+
+        <RadioButton
+            android:id="@+id/radioScopeSpecific"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Select Specific Folder..."
+            android:textColor="@color/text_primary"
+            android:textSize="14sp"
+            android:buttonTint="@color/primary"
+            android:paddingVertical="8dp"/>
+    </RadioGroup>
+
+    <!-- Action Buttons -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSaveRole"
+        style="@style/Widget.StoreMeNative.Button.Primary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Confirm &amp; Apply"
+        android:layout_marginBottom="10dp"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnRemoveUser"
+        style="@style/Widget.StoreMeNative.Button.Outlined"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Remove Collaborator"
+        android:textColor="@color/error"/>
+</LinearLayout>

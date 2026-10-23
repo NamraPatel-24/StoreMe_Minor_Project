@@ -1,0 +1,67 @@
+plugins {
+    id 'com.android.application'
+    id 'com.google.gms.google-services'
+}
+
+android {
+    namespace 'com.storeme'
+    compileSdk 36
+
+    defaultConfig {
+        applicationId "storeme.app"
+        minSdk 24
+        targetSdk 36
+        versionCode 30
+        versionName "3.0"
+    }
+
+    signingConfigs {
+        release {
+            storeFile file("../release.keystore")
+            storePassword "storeme2026"
+            keyAlias "storeme_alias"
+            keyPassword "storeme2026"
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    
+    // Firebase
+    implementation platform('com.google.firebase:firebase-bom:32.7.4')
+    implementation 'com.google.firebase:firebase-database'
+    implementation 'com.google.firebase:firebase-auth'
+
+    // Google AdMob (Advertisements)
+    implementation 'com.google.android.gms:play-services-ads:23.0.0'
+
+    // WebRTC
+    implementation 'io.getstream:stream-webrtc-android:1.3.0'
+
+    // Local HTTP Server for Real-Time Streaming
+    implementation 'org.nanohttpd:nanohttpd:2.3.1'
+}
+dependencies { 
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
+    implementation 'androidx.biometric:biometric:1.1.0'
+    implementation 'com.github.Dimezis:BlurView:version-2.0.3'
+    implementation 'androidx.viewpager2:viewpager2:1.0.0'
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+}
+configurations { webrtcCheck }; dependencies { webrtcCheck 'io.getstream:stream-webrtc-android:latest.release' }

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Enterprise Theme inheriting Material 3 Dark -->
+    <style name="Theme.StoreMeNative" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorOnPrimary">@color/on_primary</item>
+        <item name="colorPrimaryContainer">@color/primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/on_primary_container</item>
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
+        <item name="colorTertiary">@color/success</item>
+        <item name="colorError">@color/error</item>
+        <item name="colorSurface">@color/bg_surface</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorSurfaceVariant">@color/bg_elevated</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+        <item name="colorOutline">@color/border_subtle</item>
+        <item name="colorOutlineVariant">@color/border_bright</item>
+        <item name="android:colorBackground">@color/bg_void</item>
+        <item name="android:statusBarColor">@color/bg_void</item>
+        <item name="android:navigationBarColor">@color/bg_surface</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="bottomSheetDialogTheme">@style/Widget.StoreMeNative.BottomSheetDialog</item>
+    </style>
+
+    <style name="Theme.StoreMeNative.DarkAuth" parent="Theme.StoreMeNative"/>
+
+    <!-- Enterprise Card Style (12dp radius, 1dp subtle stroke, 0dp elevation) -->
+    <style name="Widget.StoreMeNative.Card.Enterprise" parent="Widget.Material3.CardView.Filled">
+        <item name="cardCornerRadius">@dimen/card_radius</item>
+        <item name="cardElevation">0dp</item>
+        <item name="cardBackgroundColor">@color/bg_surface</item>
+        <item name="strokeColor">@color/border_subtle</item>
+        <item name="strokeWidth">@dimen/card_stroke_width</item>
+    </style>
+
+    <style name="Widget.StoreMeNative.Card.Elevated" parent="Widget.Material3.CardView.Filled">
+        <item name="cardCornerRadius">@dimen/card_radius</item>
+        <item name="cardElevation">0dp</item>
+        <item name="cardBackgroundColor">@color/bg_elevated</item>
+        <item name="strokeColor">@color/border_subtle</item>
+        <item name="strokeWidth">@dimen/card_stroke_width</item>
+    </style>
+
+    <!-- Enterprise Chip Style -->
+    <style name="Widget.StoreMeNative.Chip" parent="Widget.Material3.Chip.Filter">
+        <item name="chipCornerRadius">@dimen/chip_radius</item>
+        <item name="chipBackgroundColor">@color/bg_elevated</item>
+        <item name="chipStrokeColor">@color/border_subtle</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <!-- Enterprise Bottom Sheet Dialog Style -->
+    <style name="Widget.StoreMeNative.BottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/Widget.StoreMeNative.BottomSheetModal</item>
+    </style>
+
+    <style name="Widget.StoreMeNative.BottomSheetModal" parent="Widget.Material3.BottomSheet.Modal">
+        <item name="backgroundTint">@color/bg_surface</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.StoreMeNative.BottomSheet</item>
+    </style>
+
+    <style name="ShapeAppearance.StoreMeNative.BottomSheet" parent="ShapeAppearance.Material3.Corner.None">
+        <item name="cornerSizeTopLeft">16dp</item>
+        <item name="cornerSizeTopRight">16dp</item>
+    </style>
+
+    <!-- Enterprise Primary Button -->
+    <style name="Widget.StoreMeNative.Button.Primary" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/primary</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Enterprise Outlined Button -->
+    <style name="Widget.StoreMeNative.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="cornerRadius">12dp</item>
+        <item name="strokeColor">@color/border_subtle</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <!-- Enterprise Text Input -->
+    <style name="Widget.StoreMeNative.TextInput" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxBackgroundColor">@color/bg_elevated</item>
+        <item name="boxStrokeColor">@color/border_subtle</item>
+        <item name="boxCornerRadiusTopStart">10dp</item>
+        <item name="boxCornerRadiusTopEnd">10dp</item>
+        <item name="boxCornerRadiusBottomStart">10dp</item>
+        <item name="boxCornerRadiusBottomEnd">10dp</item>
+        <item name="hintTextColor">@color/text_secondary</item>
+        <item name="android:textColorHint">@color/text_secondary</item>
+    </style>
+
+    <!-- Enterprise Bottom Navigation View Style -->
+    <style name="Widget.StoreMeNative.BottomNavigationView" parent="Widget.Material3.BottomNavigationView">
+        <item name="backgroundTint">@color/bg_surface</item>
+        <item name="itemIconTint">@color/selector_bottom_nav</item>
+        <item name="itemTextColor">@color/selector_bottom_nav</item>
+        <item name="itemActiveIndicatorStyle">@style/Widget.StoreMeNative.NavIndicator</item>
+        <item name="android:elevation">8dp</item>
+    </style>
+
+    <style name="Widget.StoreMeNative.NavIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@color/primary_dim</item>
+        <item name="android:width">48dp</item>
+        <item name="android:height">28dp</item>
+    </style>
+</resources>

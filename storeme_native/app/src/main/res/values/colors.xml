@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Enterprise Core Backgrounds -->
+    <color name="bg_void">#0A0E17</color>
+    <color name="bg_surface">#111827</color>
+    <color name="bg_elevated">#1F2937</color>
+    <color name="bg_overlay">#2D3748</color>
+
+    <!-- Borders & Glass Effects -->
+    <color name="border_subtle">#1F2A38</color>
+    <color name="border_bright">#26FFFFFF</color>
+    <color name="glass_surface">#0DFFFFFF</color>
+    <color name="glass_border">#14FFFFFF</color>
+    <color name="glass_border_bright">#26FFFFFF</color>
+
+    <!-- Enterprise Primary - Electric Blue -->
+    <color name="primary">#3B82F6</color>
+    <color name="primary_variant">#4F6EF7</color>
+    <color name="primary_dim">#1A3B82F6</color>
+    <color name="primary_container">#1E3A5F</color>
+    <color name="on_primary">#FFFFFF</color>
+    <color name="on_primary_container">#DBEAFE</color>
+
+    <!-- Secondary - Indigo -->
+    <color name="secondary">#6366F1</color>
+    <color name="secondary_dim">#1A6366F1</color>
+
+    <!-- Semantic Alerts -->
+    <color name="success">#10B981</color>
+    <color name="success_dim">#1A10B981</color>
+    <color name="warning">#F59E0B</color>
+    <color name="warning_dim">#1AF59E0B</color>
+    <color name="error">#EF4444</color>
+    <color name="error_dim">#1AEF4444</color>
+
+    <!-- Enterprise Typography -->
+    <color name="text_primary">#F9FAFB</color>
+    <color name="text_secondary">#9CA3AF</color>
+    <color name="text_tertiary">#6B7280</color>
+
+    <!-- Role Badges (Admin, Uploader, Viewer) -->
+    <color name="badge_admin_bg">#1E1B4B</color>
+    <color name="badge_admin_fg">#818CF8</color>
+    <color name="badge_admin_border">#3730A3</color>
+
+    <color name="badge_uploader_bg">#082F49</color>
+    <color name="badge_uploader_fg">#38BDF8</color>
+    <color name="badge_uploader_border">#075985</color>
+
+    <color name="badge_viewer_bg">#064E3B</color>
+    <color name="badge_viewer_fg">#34D399</color>
+    <color name="badge_viewer_border">#065F46</color>
+
+    <!-- File Category Tints and Backdrops -->
+    <color name="file_folder">#F59E0B</color>
+    <color name="file_folder_bg">#26F59E0B</color>
+    <color name="file_doc">#3B82F6</color>
+    <color name="file_doc_bg">#263B82F6</color>
+    <color name="file_sheet">#10B981</color>
+    <color name="file_sheet_bg">#2610B981</color>
+    <color name="file_slide">#F97316</color>
+    <color name="file_slide_bg">#26F97316</color>
+    <color name="file_pdf">#EF4444</color>
+    <color name="file_pdf_bg">#26EF4444</color>
+    <color name="file_image">#8B5CF6</color>
+    <color name="file_image_bg">#268B5CF6</color>
+    <color name="file_video">#EC4899</color>
+    <color name="file_video_bg">#26EC4899</color>
+    <color name="file_audio">#06B6D4</color>
+    <color name="file_audio_bg">#2606B6D4</color>
+    <color name="file_archive">#EAB308</color>
+    <color name="file_archive_bg">#26EAB308</color>
+    <color name="file_code">#6366F1</color>
+    <color name="file_code_bg">#266366F1</color>
+    <color name="file_default">#9CA3AF</color>
+    <color name="file_default_bg">#269CA3AF</color>
+
+    <!-- Legacy / Compatibility Tokens -->
+    <color name="colorPrimary">#3B82F6</color>
+    <color name="colorPrimaryDark">#0A0E17</color>
+    <color name="colorAccent">#6366F1</color>
+    <color name="colorBackground">#0A0E17</color>
+    <color name="colorSurface">#111827</color>
+    <color name="colorOnSurface">#F9FAFB</color>
+    <color name="colorSurfaceVariant">#1F2937</color>
+    <color name="colorOnSurfaceVariant">#9CA3AF</color>
+    <color name="colorOutline">#1F2A38</color>
+    <color name="colorOutlineVariant">#26FFFFFF</color>
+    <color name="colorError">#EF4444</color>
+    <color name="colorOnPrimary">#FFFFFF</color>
+</resources>

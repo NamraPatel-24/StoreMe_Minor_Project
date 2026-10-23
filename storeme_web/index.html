@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StoreMe Drive - Enterprise Storage</title>
+    <!-- Google Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?cb=9999">
+    
+    <!-- Firebase JS SDK (Compat version for Realtime DB) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1234567890123456" crossorigin="anonymous"></script>
+</head>
+<body>
+    <!-- LOGIN OVERLAY -->
+    <div id="login-overlay" class="active">
+        <div class="login-left-panel">
+            <div class="login-branding">
+                <h1>StoreMe</h1>
+                <p>Enterprise Peer-to-Peer Storage Platform</p>
+                <div class="isometric-cloud">
+                    <span class="material-icons" style="font-size: 110px; color: rgba(255,255,255,0.85);">cloud</span>
+                </div>
+            </div>
+        </div>
+        <div class="login-right-panel">
+            <div class="login-card">
+                <h2>Sign In</h2>
+                
+                <div class="input-group">
+                    <input type="text" id="host-id" placeholder=" " autocomplete="off" />
+                    <label>Host ID</label>
+                </div>
+                
+                <div class="input-group">
+                    <input type="text" id="username" placeholder=" " autocomplete="username" />
+                    <label>Username</label>
+                </div>
+                
+                <div class="input-group">
+                    <input type="password" id="password" placeholder=" " autocomplete="current-password" />
+                    <label>Password</label>
+                </div>
+                
+                <button id="btn-login" class="btn-primary" onclick="connectToHost()">
+                    <span>Connect to Host</span>
+                    <span class="material-icons" style="font-size: 18px;">arrow_forward</span>
+                </button>
+                <p id="login-status"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN DRIVE INTERFACE -->
+    <div id="app-container" class="hidden">
+        
+        <!-- LEFT SIDEBAR -->
+        <nav class="sidebar">
+            <div class="brand">
+                <span class="material-icons brand-icon">cloud</span>
+                <span class="title">StoreMe</span>
+            </div>
+
+            <div class="new-btn-wrapper">
+                <button type="button" class="new-btn" id="btn-new-menu" onclick="toggleNewMenu(event)">
+                    <span class="material-icons" style="color: var(--brand-primary); font-size: 20px;">add</span>
+                    <span>New</span>
+                </button>
+                <div id="new-menu" class="context-menu shadow-menu">
+                    <div class="menu-item" onclick="createNewFolder()">
+                        <span class="material-icons">create_new_folder</span> New folder
+                    </div>
+                    <div class="menu-divider"></div>
+                    <label class="menu-item" for="file-upload" style="margin-bottom: 0;">
+                        <span class="material-icons">upload_file</span> File upload
+                    </label>
+                </div>
+            </div>
+            <input type="file" id="file-upload" style="display: none;" multiple onchange="uploadFile(event)">
+            
+            <ul class="nav-links">
+                <li class="active" id="nav-my-drive" onclick="loadDirectory(window.allowedPath || ''); document.querySelectorAll('.nav-links li').forEach(l=>l.classList.remove('active')); this.classList.add('active'); isTrashMode = false; isStarredMode = false;">
+                    <span class="material-icons">devices</span> <span class="nav-text">My Drive</span>
+                </li>
+                <li id="nav-starred" onclick="loadStarred(); document.querySelectorAll('.nav-links li').forEach(l=>l.classList.remove('active')); this.classList.add('active');">
+                    <span class="material-icons">star_border</span> <span class="nav-text">Starred</span>
+                </li>
+                <li id="nav-trash" onclick="loadTrash(); document.querySelectorAll('.nav-links li').forEach(l=>l.classList.remove('active')); this.classList.add('active');">
+                    <span class="material-icons">delete_outline</span> <span class="nav-text">Trash</span>
+                </li>
+                <li id="nav-storage" onclick="loadStorageDashboard(); document.querySelectorAll('.nav-links li').forEach(l=>l.classList.remove('active')); this.classList.add('active');">
+                    <span class="material-icons">data_usage</span> <span class="nav-text">Storage</span>
+                </li>
+            </ul>
+
+            <!-- STORAGE CAPACITY METER WITH SEGMENTED PROGRESS -->
+            <div class="storage-info" onclick="fetchHostInfo()" title="Click for Host and Storage Details">
+                <div class="storage-icon">
+                    <span class="material-icons" style="font-size: 18px; color: var(--brand-primary);">cloud_queue</span>
+                    <span>Storage</span>
+                </div>
+                <!-- Standard bar with fallback segmented container -->
+                <div class="storage-progress-segmented" id="storage-segmented-bar">
+                    <div class="storage-seg storage-seg-doc" id="storage-progress-bar" style="width: 0%"></div>
+                </div>
+                <p id="storage-text">Loading...</p>
+            </div>
+
+            <!-- AdSense Placeholder -->
+            <div style="margin: 16px; text-align: center;">
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-1234567890123456"
+                     data-ad-slot="1234567890"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+                <script>
+                     (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            </div>
+        </nav>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="main-body">
+            
+            <!-- DROP OVERLAY TARGET -->
+            <div id="drop-overlay">
+                <span class="material-icons drop-icon">cloud_upload</span>
+                <div class="drop-title">Drop files to upload</div>
+                <div class="drop-sub" id="drop-folder-name">Files will be uploaded to My Drive</div>
+            </div>
+            
+            <div class="content-header">
+                <!-- BREADCRUMBS -->
+                <div class="path-bar" id="path-bar">
+                    <span class="breadcrumb" onclick="loadDirectory(window.allowedPath || '')">My Drive</span>
+                </div>
+                
+                <div style="display:flex; align-items:center; gap: 12px;">
+                    <div style="display:flex; flex-direction:column; position:relative;">
+                        <div class="search-bar">
+                            <span class="material-icons">search</span>
+                            <input type="text" id="search-input" placeholder="Search files and folders..." autocomplete="off" />
+                        </div>
+                        <div id="search-subtitle" style="position:absolute; top: 100%; left: 16px; font-size: 11px; color: var(--text-secondary); margin-top: 4px; display: none; white-space: nowrap;">Showing results in current folder</div>
+                    </div>
+                    
+                    <!-- ADMIN USER MANAGEMENT BUTTON (Visible for Admin only) -->
+                    <button id="btn-admin-users" class="btn-subtle" onclick="openAdminUsersModal()" title="Admin User Management" style="display: none;">
+                        <span class="material-icons">manage_accounts</span>
+                    </button>
+                    
+                    <!-- USER AVATAR & ENTERPRISE ROLE BADGE -->
+                    <div style="display:flex; align-items:center; gap: 8px;">
+                        <span id="user-role-badge" class="role-badge role-admin">
+                            <span class="role-dot"></span>
+                            <span id="role-text">Admin</span>
+                        </span>
+                        <div class="avatar" id="user-avatar">A</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="file-view">
+                <!-- TOP BATCH ACTION BAR (Seamlessly transforms table header on selection) -->
+                <div id="top-batch-bar" class="top-batch-bar">
+                    <div class="top-batch-left">
+                        <input type="checkbox" id="batch-select-all" onclick="toggleSelectAll(event)" checked style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--brand-primary);">
+                        <span class="batch-count-badge" id="selection-count">0 items selected</span>
+                    </div>
+                    <div class="top-batch-divider"></div>
+                    <div class="top-batch-actions">
+                        <button class="batch-btn" onclick="multiAction('download')" title="Download Selection (ZIP)">
+                            <span class="material-icons">file_download</span>
+                            <span>Download</span>
+                        </button>
+                        <button class="batch-btn" id="batch-btn-share" onclick="multiAction('share')" title="Get Share Link">
+                            <span class="material-icons">person_add</span>
+                            <span>Share</span>
+                        </button>
+                        <button class="batch-btn" id="batch-btn-move" onclick="multiAction('move')" title="Move Selection">
+                            <span class="material-icons">drive_file_move</span>
+                            <span>Move</span>
+                        </button>
+                        <button class="batch-btn" onclick="multiAction('star')" title="Star Selection">
+                            <span class="material-icons">star_border</span>
+                            <span>Star</span>
+                        </button>
+                        <button class="batch-btn batch-btn-danger" id="batch-btn-delete" onclick="multiAction('delete')" title="Delete Selection">
+                            <span class="material-icons" style="color: var(--status-danger);">delete</span>
+                            <span style="color: var(--status-danger);">Delete</span>
+                        </button>
+                        <button class="batch-btn" onclick="clearSelection()" title="Clear Selection">
+                            <span class="material-icons">close</span>
+                            <span>Clear</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STANDARD DATA TABLE HEADER (Sticky 40px) -->
+                <div class="list-header" id="list-header">
+                    <div class="col-check">
+                        <input type="checkbox" id="select-all" onclick="toggleSelectAll(event)" title="Select All">
+                    </div>
+                    <div class="col-name" onclick="sortByColumn('name')" style="cursor: pointer;" title="Sort by Name">
+                        <span>Name</span>
+                        <span class="material-icons" id="sort-icon-name" style="font-size: 14px; opacity: 0.6;">unfold_more</span>
+                    </div>
+                    <div class="col-owner">Owner</div>
+                    <div class="col-modified" onclick="sortByColumn('modified')" style="cursor: pointer;" title="Sort by Modified Date">
+                        <span>Last modified</span>
+                        <span class="material-icons" id="sort-icon-modified" style="font-size: 14px; opacity: 0.6;">unfold_more</span>
+                    </div>
+                    <div class="col-size" onclick="sortByColumn('size')" style="cursor: pointer;" title="Sort by Size">
+                        <span>File size</span>
+                        <span class="material-icons" id="sort-icon-size" style="font-size: 14px; opacity: 0.6;">unfold_more</span>
+                    </div>
+                    <div class="col-actions"></div>
+                </div>
+                
+                <div id="file-list-container">
+                    <!-- File rows will be injected dynamically -->
+                </div>
+            </div>
+            
+            <!-- FALLBACK DOCK ACTION BAR (Preserved for backward compatibility) -->
+            <div id="action-bar" class="action-bar" style="display:none;"></div>
+        </main>
+        
+        <!-- RIGHT DETAILS PANEL -->
+        <aside class="details-panel" id="details-panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <span class="material-icons" style="color: var(--brand-primary); font-size: 20px;">description</span>
+                    <span id="detail-name">Details</span>
+                </div>
+                <span class="material-icons close-btn" onclick="closeDetails()">close</span>
+            </div>
+            <div class="panel-body">
+                <div class="detail-preview" id="detail-icon">
+                    <span class="material-icons">insert_drive_file</span>
+                </div>
+                <div class="props-section">
+                    <h4>Properties</h4>
+                    <div class="prop-row">
+                        <span class="prop-label">Type</span> 
+                        <span class="prop-value" id="detail-type">Unknown</span>
+                    </div>
+                    <div class="prop-row">
+                        <span class="prop-label">Size</span> 
+                        <span class="prop-value" id="detail-size">0 B</span>
+                    </div>
+                    <div class="prop-row" id="detail-owner-row">
+                        <span class="prop-label">Owner</span>
+                        <span class="prop-value" id="detail-owner">admin</span>
+                    </div>
+                    <button class="download-btn" id="btn-download" style="display: none;">
+                        <span class="material-icons">download</span> Download
+                    </button>
+                    <p id="download-progress"></p>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- MULTI-FILE UPLOAD PROGRESS DRAWER (Collapsible bottom-right widget) -->
+    <div id="upload-panel" class="upload-drawer">
+        <div class="upload-drawer-header">
+            <span id="upload-drawer-title">Uploading 1 file...</span>
+            <div class="upload-drawer-header-actions">
+                <span class="material-icons" id="upload-drawer-minimize" onclick="toggleUploadDrawerMinimize()" title="Minimize">expand_more</span>
+                <span class="material-icons" onclick="closeUploadDrawer()" title="Close">close</span>
+            </div>
+        </div>
+        <div class="upload-drawer-body" id="upload-drawer-items">
+            <!-- Legacy single item structure preserved for fallbacks -->
+            <div class="upload-drawer-item" id="legacy-upload-item">
+                <span class="material-icons upload-item-icon">insert_drive_file</span>
+                <div class="upload-item-details">
+                    <div class="upload-item-name" id="upload-name">Filename.mp4</div>
+                    <div class="upload-item-progress-bar">
+                        <div class="upload-item-progress-fill" id="upload-progress-fill" style="width:0%"></div>
+                    </div>
+                    <div class="upload-item-sub">
+                        <span id="upload-speed-size">0 MB/s</span>
+                        <span id="upload-pct">0%</span>
+                    </div>
+                </div>
+                <span class="material-icons upload-item-cancel" onclick="cancelUpload()" title="Cancel">cancel</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden A tag for downloading files to disk -->
+    <a id="download-anchor" style="display:none"></a>
+
+    <!-- CONTEXT MENU -->
+    <div id="context-menu" class="context-menu">
+        <div class="menu-item" id="ctx-preview" onclick="contextAction('preview')">
+            <span class="material-icons">visibility</span> Preview
+        </div>
+        <div class="menu-item" id="ctx-download" onclick="contextAction('download')">
+            <span class="material-icons">file_download</span> Download
+        </div>
+        <div class="menu-item" id="ctx-rename" onclick="contextAction('rename')">
+            <span class="material-icons">edit</span> Rename
+        </div>
+        <div class="menu-item" id="ctx-move" onclick="contextAction('move')">
+            <span class="material-icons">drive_file_move</span> Move
+        </div>
+        <div class="menu-item" id="ctx-share" onclick="contextAction('share')">
+            <span class="material-icons">link</span> Get link
+        </div>
+        <div class="menu-divider" id="ctx-divider"></div>
+        <div class="menu-item danger-item" id="ctx-delete" onclick="contextAction('delete')">
+            <span class="material-icons">delete</span> Remove
+        </div>
+    </div>
+
+    <!-- HOST INFO MODAL -->
+    <div id="host-info-modal" class="modal-overlay">
+        <div class="modal-card">
+            <h3>Host Information</h3>
+            <div id="host-info-content" style="line-height: 1.6; color: var(--text-secondary); margin-top: 12px;">
+                Loading...
+            </div>
+            <div class="modal-actions">
+                <button onclick="document.getElementById('host-info-modal').style.display='none'" class="btn-primary">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FULL SCREEN PREVIEW MODAL -->
+    <div id="preview-modal">
+        <div class="modal-header">
+            <div class="header-left">
+                <span class="material-icons icon-btn" onclick="closePreview()">arrow_back</span>
+                <span id="preview-filename">Loading...</span>
+            </div>
+            <div class="header-right">
+                <span class="material-icons icon-btn" onclick="downloadFromPreview()" title="Download">file_download</span>
+                <span class="material-icons icon-btn" onclick="closePreview()">close</span>
+            </div>
+        </div>
+        <div id="preview-content">
+            <!-- Content injected by JS -->
+        </div>
+    </div>
+
+    <!-- CUSTOM PROMPT MODAL -->
+    <div id="custom-prompt-overlay" class="modal-overlay" style="z-index: 10000;">
+        <div class="modal-card">
+            <h3 id="custom-prompt-title">Prompt Title</h3>
+            <div class="input-group" style="margin-top: 16px;">
+                <input type="text" id="custom-prompt-input" placeholder=" " />
+                <label></label>
+            </div>
+            <div class="modal-actions">
+                <button id="custom-prompt-cancel" class="btn-secondary">Cancel</button>
+                <button id="custom-prompt-confirm" class="btn-primary" style="width: auto;">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DESTRUCTIVE DELETE MODAL (Replacing window.confirm) -->
+    <div id="destructive-modal" class="modal-overlay" style="z-index: 10005;">
+        <div class="modal-card">
+            <div class="destructive-header">
+                <div class="destructive-icon-wrap">
+                    <span class="material-icons">report_problem</span>
+                </div>
+                <div>
+                    <h3 id="destructive-modal-title">Delete Item?</h3>
+                    <p id="destructive-modal-body">Are you sure you want to delete this item? This action will move it to the trash.</p>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button id="destructive-modal-cancel" class="btn-secondary">Cancel</button>
+                <button id="destructive-modal-confirm" class="btn-danger">
+                    <span class="material-icons" style="font-size: 16px;">delete</span>
+                    <span>Delete</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MOVE MODAL -->
+    <div id="move-modal" class="modal-overlay">
+        <div class="modal-card">
+            <h3>Move Item(s)</h3>
+            <div class="input-group" style="margin-top: 16px;">
+                <select id="move-destination-select"></select>
+            </div>
+            <div class="modal-actions">
+                <button onclick="document.getElementById('move-modal').style.display='none'" class="btn-secondary">Cancel</button>
+                <button onclick="window.confirmMove()" class="btn-primary" style="width: auto;">Move</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN USER MANAGEMENT MODAL (Admin Only) -->
+    <div id="admin-users-modal" class="modal-overlay" style="z-index: 10002;">
+        <div class="modal-card admin-users-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <h3>User Management &amp; Role Permissions</h3>
+                <span class="material-icons close-btn" onclick="closeAdminUsersModal()">close</span>
+            </div>
+            <p>Manage registered accounts and assign RBAC roles (Admin, Uploader, Viewer).</p>
+            
+            <div style="max-height: 260px; overflow-y: auto; margin-top: 16px; border: 1px solid var(--border-default); border-radius: var(--radius-md);">
+                <table class="admin-users-table">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Current Role</th>
+                            <th>Change Role</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-users-table-body">
+                        <!-- User rows injected by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Add User Form -->
+            <div class="admin-add-user-form">
+                <div class="form-group">
+                    <label>New Username</label>
+                    <input type="text" id="admin-new-username" placeholder="e.g. sarah" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="admin-new-password" placeholder="••••••••" autocomplete="new-password">
+                </div>
+                <div class="form-group" style="max-width: 130px;">
+                    <label>Role</label>
+                    <select id="admin-new-role">
+                        <option value="viewer">Viewer</option>
+                        <option value="uploader" selected>Uploader</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <button class="btn-primary" style="width: auto; height: 38px;" onclick="adminCreateUser()">
+                    <span class="material-icons" style="font-size: 16px;">person_add</span>
+                    <span>Add</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DOWNLOAD PROGRESS WIDGET -->
+    <div id="download-widget" class="hidden">
+        <div class="dl-info">
+            <span id="dl-filename" class="font-body-md">file.mp4</span>
+            <span class="material-icons icon-btn" id="dl-cancel-btn" title="Cancel Download">close</span>
+        </div>
+        <div class="dl-progress-bar-container">
+            <div id="dl-progress-bar"></div>
+        </div>
+        <div class="dl-stats">
+            <span id="dl-percentage">0%</span>
+            <span id="dl-speed-size">0 MB/s - 0/0 MB</span>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container"></div>
+
+    <script src="app.js?cb=9999"></script>
+</body>
+</html>

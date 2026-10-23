@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/bg_surface"
+    android:paddingTop="12dp"
+    android:paddingBottom="24dp">
+
+    <!-- Handle Bar -->
+    <View
+        android:layout_width="36dp"
+        android:layout_height="4dp"
+        android:background="@drawable/bg_meta_chip"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="12dp"/>
+
+    <TextView
+        android:id="@+id/textMenuTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="File Actions"
+        android:textSize="17sp"
+        android:fontFamily="sans-serif-medium"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        android:paddingHorizontal="24dp"
+        android:paddingVertical="12dp"
+        android:singleLine="true"
+        android:ellipsize="middle"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/border_subtle"
+        android:layout_marginBottom="6dp"/>
+
+    <!-- Download Action -->
+    <LinearLayout
+        android:id="@+id/btnMenuDownload"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="24dp"
+        android:background="?attr/selectableItemBackground">
+        <ImageView
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:src="@drawable/ic_download_round"
+            app:tint="@color/primary"
+            android:layout_marginEnd="16dp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Download File"
+            android:textSize="15sp"
+            android:textColor="@color/text_primary"/>
+    </LinearLayout>
+
+    <!-- Share Token Action -->
+    <LinearLayout
+        android:id="@+id/btnMenuShare"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="24dp"
+        android:background="?attr/selectableItemBackground">
+        <ImageView
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:src="@drawable/ic_link"
+            app:tint="@color/primary"
+            android:layout_marginEnd="16dp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Generate Share Token"
+            android:textSize="15sp"
+            android:textColor="@color/text_primary"/>
+    </LinearLayout>
+
+    <!-- Compress / Extract Action -->
+    <LinearLayout
+        android:id="@+id/btnMenuZip"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="24dp"
+        android:background="?attr/selectableItemBackground">
+        <ImageView
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:src="@drawable/ic_archive"
+            app:tint="@color/primary"
+            android:layout_marginEnd="16dp"/>
+        <TextView
+            android:id="@+id/textMenuZip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Compress to ZIP"
+            android:textSize="15sp"
+            android:textColor="@color/text_primary"/>
+    </LinearLayout>
+
+    <!-- Details Action -->
+    <LinearLayout
+        android:id="@+id/btnMenuDetails"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="24dp"
+        android:background="?attr/selectableItemBackground">
+        <ImageView
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:src="@drawable/ic_info"
+            app:tint="@color/text_secondary"
+            android:layout_marginEnd="16dp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="File Properties &amp; Metadata"
+            android:textSize="15sp"
+            android:textColor="@color/text_primary"/>
+    </LinearLayout>
+    
+    <!-- Restore Action (when in trash) -->
+    <LinearLayout
+        android:id="@+id/btnMenuRestore"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="24dp"
+        android:background="?attr/selectableItemBackground"
+        android:visibility="gone">
+        <ImageView
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:src="@drawable/ic_check_circle"
+            app:tint="@color/success"
+            android:layout_marginEnd="16dp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Restore File"
+            android:textSize="15sp"
+            android:textColor="@color/success"/>
+    </LinearLayout>
+
+    <!-- Delete Action (destructive) -->
+    <LinearLayout
+        android:id="@+id/btnMenuTrash"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="24dp"
+        android:background="?attr/selectableItemBackground">
+        <ImageView
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:src="@drawable/ic_delete"
+            app:tint="@color/error"
+            android:layout_marginEnd="16dp"/>
+        <TextView
+            android:id="@+id/textMenuTrash"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Move to Trash"
+            android:textSize="15sp"
+            android:textColor="@color/error"/>
+    </LinearLayout>
+
+</LinearLayout>

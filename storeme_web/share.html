@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StoreMe - Secure Enterprise Share</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+        :root {
+            --bg-canvas: #f8fafc;
+            --bg-surface: #ffffff;
+            --bg-surface-subtle: #f1f5f9;
+            --border-default: #e2e8f0;
+            --border-strong: #cbd5e1;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --brand-primary: #2563eb;
+            --brand-primary-hover: #1d4ed8;
+            --brand-primary-subtle: #eff6ff;
+            --brand-primary-ring: rgba(37, 99, 235, 0.25);
+            --status-danger: #dc2626;
+            --role-viewer-bg: #f1f5f9;
+            --role-viewer-color: #475569;
+            --role-viewer-border: #cbd5e1;
+            --shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.08), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
+            --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-full: 9999px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+        
+        body {
+            background: var(--bg-canvas);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 32px 16px 48px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Header ── */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 720px;
+            margin-bottom: 24px;
+        }
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .header-logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+        .header-sub {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        
+        /* Enterprise Role Badge */
+        .role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 4px 10px;
+            border-radius: var(--radius-full);
+            background: var(--role-viewer-bg);
+            color: var(--role-viewer-color);
+            border: 1px solid var(--role-viewer-border);
+        }
+        .role-badge .badge-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--role-viewer-color);
+        }
+
+        /* ── Card ── */
+        .card {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-default);
+            box-shadow: var(--shadow-sm);
+            width: 100%;
+            max-width: 720px;
+            overflow: hidden;
+            transition: box-shadow 0.2s ease;
+        }
+
+        /* ── File Info Bar ── */
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 24px;
+            border-bottom: 1px solid var(--border-default);
+        }
+        .file-icon-wrap {
+            width: 52px;
+            height: 52px;
+            border-radius: var(--radius-md);
+            background: var(--brand-primary-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border: 1px solid rgba(37, 99, 235, 0.15);
+        }
+        .file-icon-wrap .material-icons {
+            font-size: 28px;
+            color: var(--brand-primary);
+        }
+        .file-meta {
+            flex: 1;
+            min-width: 0;
+        }
+        .file-meta h2 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .file-meta p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* ── Progress ── */
+        .progress-wrap {
+            padding: 0 24px;
+            display: none;
+        }
+        .progress-bar {
+            height: 4px;
+            background: var(--bg-surface-subtle);
+            border-radius: 2px;
+            margin: 16px 0 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--brand-primary);
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+        .progress-text {
+            font-size: 12px;
+            color: var(--brand-primary);
+            font-weight: 600;
+            text-align: right;
+            padding-bottom: 12px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* ── Preview Area ── */
+        .preview-area {
+            padding: 0;
+            min-height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #090d16;
+            position: relative;
+        }
+        .preview-area.light { background: var(--bg-surface-subtle); }
+        .preview-area.hidden { display: none; }
+
+        #preview-image {
+            max-width: 100%;
+            max-height: 480px;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto;
+        }
+        #preview-video {
+            width: 100%;
+            max-height: 480px;
+            display: block;
+            outline: none;
+        }
+        #preview-audio {
+            width: 100%;
+            padding: 32px 24px;
+        }
+        #preview-text {
+            width: 100%;
+            padding: 24px;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--bg-surface-subtle);
+            white-space: pre-wrap;
+            word-break: break-word;
+            max-height: 480px;
+            overflow-y: auto;
+            border: none;
+            resize: none;
+            outline: none;
+        }
+        .preview-loading, .no-preview {
+            color: var(--text-secondary);
+            font-size: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            padding: 48px;
+        }
+        .preview-loading .material-icons, .no-preview .material-icons {
+            font-size: 48px;
+            color: var(--text-muted);
+        }
+
+        /* ── Actions ── */
+        .actions {
+            display: flex;
+            gap: 12px;
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-default);
+            background: var(--bg-surface);
+        }
+        .btn {
+            flex: 1;
+            padding: 10px 16px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+        }
+        .btn:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 3px var(--brand-primary-ring);
+        }
+        .btn-primary {
+            background: var(--brand-primary);
+            color: #ffffff;
+        }
+        .btn-primary:hover:not(:disabled) {
+            background: var(--brand-primary-hover);
+        }
+        .btn-primary:disabled {
+            background: var(--bg-surface-active);
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+        .btn-secondary {
+            background: var(--bg-surface);
+            color: var(--text-primary);
+            border-color: var(--border-default);
+        }
+        .btn-secondary:hover:not(:disabled) {
+            background: var(--bg-surface-hover);
+            border-color: var(--border-strong);
+        }
+        .btn-secondary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* ── Security Trust Footer ── */
+        .security-footer {
+            margin-top: 24px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .security-footer .material-icons {
+            font-size: 14px;
+        }
+    </style>
+    <!-- Firebase JS SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-brand">
+            <span class="material-icons" style="color: var(--brand-primary); font-size: 26px;">cloud</span>
+            <div>
+                <div class="header-logo">StoreMe</div>
+                <div class="header-sub">Secure Enterprise Peer-to-Peer Storage</div>
+            </div>
+        </div>
+        <span class="role-badge">
+            <span class="badge-dot"></span>
+            Viewer Access
+        </span>
+    </div>
+
+    <div class="card">
+        <!-- File Info Bar -->
+        <div class="file-info">
+            <div class="file-icon-wrap">
+                <span class="material-icons" id="file-icon">cloud_sync</span>
+            </div>
+            <div class="file-meta">
+                <h2 id="file-name">Connecting to host...</h2>
+                <p id="file-size">Please wait</p>
+            </div>
+        </div>
+
+        <!-- Progress Bar (hidden until download starts) -->
+        <div class="progress-wrap" id="progress-wrap">
+            <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+            <div class="progress-text" id="progress-text">0%</div>
+        </div>
+
+        <!-- Preview Area -->
+        <div class="preview-area hidden" id="preview-area">
+            <!-- Filled dynamically by JS -->
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="actions">
+            <button class="btn btn-secondary" id="btn-preview" disabled onclick="startPreview()">
+                <span class="material-icons" style="font-size:18px;">visibility</span> Preview
+            </button>
+            <button class="btn btn-primary" id="btn-download" disabled onclick="startDownload()">
+                <span class="material-icons" style="font-size:18px;">file_download</span> Download
+            </button>
+        </div>
+    </div>
+
+    <div class="security-footer">
+        <span class="material-icons">lock</span>
+        <span>End-to-end encrypted direct peer-to-peer data channel &bull; Read-only Guest Access</span>
+    </div>
+
+    <!-- Hidden anchor for triggering file save -->
+    <a id="download-anchor" style="display:none"></a>
+
+    <script src="share.js"></script>
+</body>
+</html>

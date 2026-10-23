@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "360681741900",
+    "firebase_url": "https://storemeapp-ef3bd-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "storemeapp-ef3bd",
+    "storage_bucket": "storemeapp-ef3bd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:360681741900:android:9469f05f215b9238819ee9",
+        "android_client_info": {
+          "package_name": "com.storeme"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCv_9fRTghEzF8HS5G1QjUv9RJekbN-NGc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:360681741900:android:0fee1f4cccff1f69819ee9",
+        "android_client_info": {
+          "package_name": "storeme.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCv_9fRTghEzF8HS5G1QjUv9RJekbN-NGc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
