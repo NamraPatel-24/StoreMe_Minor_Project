@@ -375,7 +375,8 @@ public class LocalHttpServer extends NanoHTTPD {
                         response = newFixedLengthResponse(Response.Status.NOT_FOUND, "application/json", "{\"error\":\"Not Found\",\"status\":404,\"message\":\"File not found\"}");
                     } else {
                         String owner = sessionManager.getOwnershipStore().getOwner(file.getAbsolutePath());
-                        if (role == Role.UPLOADER && !username.equals(owner)) {
+                        boolean hasRecorded = sessionManager.getOwnershipStore().hasRecordedOwner(file.getAbsolutePath());
+                        if (role == Role.UPLOADER && hasRecorded && owner != null && !owner.isEmpty() && !username.equals(owner) && !"admin".equals(owner)) {
                             return createForbiddenResponse("Cannot delete files owned by another user");
                         }
                         boolean deleted = deleteRecursive(file);
@@ -400,8 +401,9 @@ public class LocalHttpServer extends NanoHTTPD {
                         response = newFixedLengthResponse(Response.Status.NOT_FOUND, "application/json", "{\"error\":\"Not Found\",\"status\":404}");
                     } else {
                         String owner = sessionManager.getOwnershipStore().getOwner(srcFile.getAbsolutePath());
-                        if (role == Role.UPLOADER && !username.equals(owner)) {
-                            return createForbiddenResponse("Cannot delete files owned by another user");
+                        boolean hasRecorded = sessionManager.getOwnershipStore().hasRecordedOwner(srcFile.getAbsolutePath());
+                        if (role == Role.UPLOADER && hasRecorded && owner != null && !owner.isEmpty() && !username.equals(owner) && !"admin".equals(owner)) {
+                            return createForbiddenResponse("Cannot modify files owned by another user");
                         }
                         boolean moved = srcFile.renameTo(dstFile);
                         if (moved) {
@@ -452,8 +454,9 @@ public class LocalHttpServer extends NanoHTTPD {
                         File tmpFile = new File(tmpPath);
                         File destFile = new File(dirPath, fileName);
                         if (destFile.exists()) {
+                            boolean hasRecorded = sessionManager.getOwnershipStore().hasRecordedOwner(destFile.getAbsolutePath());
                             String currentOwner = sessionManager.getOwnershipStore().getOwner(destFile.getAbsolutePath());
-                            if (role == Role.UPLOADER && !username.equals(currentOwner)) {
+                            if (role == Role.UPLOADER && hasRecorded && currentOwner != null && !currentOwner.isEmpty() && !username.equals(currentOwner) && !"admin".equals(currentOwner)) {
                                 return createForbiddenResponse("Cannot overwrite files owned by another user");
                             }
                         }

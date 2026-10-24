@@ -39,8 +39,8 @@ function canUserDeleteFile(file) {
     if (!file) return false;
     if (currentUser.role === 'Admin') return true;
     if (currentUser.role === 'Uploader') {
-        const owner = file.owner || file.uploadedBy || 'admin';
-        return owner === currentUser.username;
+        const owner = file.owner || file.uploadedBy;
+        return !owner || owner === currentUser.username || owner === 'admin';
     }
     return false; // Viewer cannot delete any files
 }
@@ -50,8 +50,8 @@ function canUserModifyFile(file) {
     if (!file) return false;
     if (currentUser.role === 'Admin') return true;
     if (currentUser.role === 'Uploader') {
-        const owner = file.owner || file.uploadedBy || 'admin';
-        return owner === currentUser.username;
+        const owner = file.owner || file.uploadedBy;
+        return !owner || owner === currentUser.username || owner === 'admin';
     }
     return false; // Viewer cannot rename or move files
 }
@@ -438,18 +438,11 @@ function connectToHost() {
         if (loginOverlay) loginOverlay.classList.remove('active');
         const appContainer = getEl('app-container');
         if (appContainer) appContainer.classList.remove('hidden');
-        // Update avatar & role permissions from username
+        // Update username; role will be authenticated from host_info
         const uname = (document.getElementById('username') ? document.getElementById('username').value.trim() : '') || 'admin';
         currentUser.username = uname;
-        if (uname.toLowerCase().includes('viewer')) {
-            currentUser.role = 'Viewer';
-        } else if (uname.toLowerCase().includes('uploader')) {
-            currentUser.role = 'Uploader';
-        } else {
-            currentUser.role = 'Admin';
-        }
         applyRolePermissions();
-        showToast(`Connected as ${currentUser.username} (${currentUser.role})`, "success");
+        showToast(`Connected as ${currentUser.username}`, "success");
         // We will wait for host_info to perform the initial directory load based on allowedPath
         window.initialLoadDone = false;
         sendData({ action: 'get_storage_stats' });
@@ -550,9 +543,12 @@ function handleJsonMessage(msg) {
             showDisconnected("Host has gone offline. Please wait for the host to restart.");
             return;
         } else if (msg.action === 'access_denied') {
-            showToast(msg.message || ('Access Denied: ' + (msg.path || 'Operation not permitted')), 'error');
-            if (allowedPath) loadDirectory(allowedPath);
-            else loadDirectory('');
+            const reason = msg.message || (msg.path ? `Access Denied: ${msg.path}` : 'Operation not permitted');
+            showToast(reason, 'error');
+            if (msg.path && currentPath === msg.path) {
+                if (allowedPath) loadDirectory(allowedPath);
+                else loadDirectory('');
+            }
         } else if (msg.action === 'auth_success' || msg.action === 'session_info') {
             if (msg.role) setCurrentUserRole(msg.role, msg.username);
             if (msg.token) currentUser.token = msg.token;
@@ -661,7 +657,19 @@ function handleJsonMessage(msg) {
                         mediaSource = null;
                         c.innerHTML = '<div style="color:white;font-size:20px;">Loading video ' + (typeof formatSize === 'function' ? formatSize(msg.size) : msg.size) + '...</div>';
                     }
-                } else if (previewCategory === 'image') {
+                } else if (previewCategory === 'audio') {
+            const ext = currentDownloadName.split('.').pop().toLowerCase();
+            const blob = new Blob(downloadBuffer, { type: 'audio/' + (ext === 'mp3' ? 'mpeg' : ext) });
+            const url = URL.createObjectURL(blob);
+            window.currentPreviewUrl = url;
+            if (c) {
+                c.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:40px;text-align:center;">'
+                    + '<span class="material-icons" style="font-size:80px;color:var(--brand-primary);margin-bottom:20px;">audiotrack</span>'
+                    + '<p style="font-size:18px;margin-bottom:20px;color:#fff;">' + currentDownloadName + '</p>'
+                    + '<audio controls autoplay style="width:100%;max-width:500px;outline:none;" src="' + url + '"></audio>'
+                    + '</div>';
+            }
+        } else if (previewCategory === 'image') {
                     c.innerHTML = '<div id="img-wrap" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;"><img id="live-img" style="max-width:100%;max-height:85vh;object-fit:contain;box-shadow:0 4px 20px rgba(0,0,0,0.5);" src="" alt="Loading..."></div>';
                 } else if (previewCategory === 'text') {
                     c.innerHTML = '<pre id="live-text" style="background:#202124;color:#e8eaed;padding:24px;border-radius:8px;max-width:900px;max-height:85vh;overflow:auto;width:100%;font-family:monospace;white-space:pre-wrap;word-break:break-all;"></pre>';
@@ -702,6 +710,11 @@ function handleJsonMessage(msg) {
                 window.initialLoadDone = true;
                 currentPath = allowedPath || '';
                 loadDirectory(currentPath);
+            }
+        } else if (msg.action === 'user_list') {
+            if (msg.users && Array.isArray(msg.users)) {
+                localUserAccounts = msg.users;
+                refreshAdminUsersList();
             }
         } else if (msg.action === 'storage_breakdown') {
             renderStorageDashboard(msg.data);
@@ -983,6 +996,7 @@ function downloadFromPreview() {
 }
 
 function loadDirectory(path) {
+window.loadDirectory = loadDirectory;
     currentPath = path;
     // Show loading state
     const flc = getEl('file-list-container');
@@ -1215,7 +1229,7 @@ function renderFiles(path, files, isSearch = false) {
         }
         
         const isShareUI = new URLSearchParams(window.location.search).has('token');
-        html += '<span class="breadcrumb" onclick="loadDirectory(\\\'' + driveRoot + '\\\')">' + (isShareUI ? 'Shared Files' : 'My Drive') + '</span>';
+        html += '<span class="breadcrumb" onclick="loadDirectory(\'' + driveRoot + '\')">' + (isShareUI ? 'Shared Files' : 'My Drive') + '</span>';
         let cur = allowedPath ? allowedPath : '';
         if (cur.endsWith('/')) cur = cur.slice(0, -1);
         
@@ -1861,6 +1875,7 @@ function formatSize(bytes) {
 function getFileCategory(filename) {
     const ext = filename.split('.').pop().toLowerCase();
     if (['mp4', 'webm', 'ogg', 'mkv', 'avi', 'mov', '3gp', 'm4v', 'wmv', 'flv'].includes(ext)) return 'video';
+    if (['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac'].includes(ext)) return 'audio';
     if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'heic', 'bmp'].includes(ext)) return 'image';
     if (['txt', 'md', 'js', 'json', 'css', 'html', 'xml', 'csv', 'log', 'py', 'java', 'kt', 'sh'].includes(ext)) return 'text';
     if (ext === 'pdf') return 'pdf';
@@ -2232,6 +2247,9 @@ async function openAdminUsersModal() {
     }
     const modal = getEl('admin-users-modal');
     if (modal) modal.style.display = 'flex';
+    if (dataChannel && dataChannel.readyState === 'open') {
+        sendData({ action: 'list_users' });
+    }
     await refreshAdminUsersList();
 }
 window.openAdminUsersModal = openAdminUsersModal;

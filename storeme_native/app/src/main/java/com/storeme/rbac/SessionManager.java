@@ -71,8 +71,11 @@ public class SessionManager {
                         User u = User.fromJsonObject(obj);
                         if (!u.getUsername().isEmpty()) {
                             // Default admin username to ADMIN role if not set
-                            if ("admin".equalsIgnoreCase(u.getUsername()) && u.getRole() == Role.VIEWER && !obj.has("role")) {
+                            if ("admin".equalsIgnoreCase(u.getUsername())) {
                                 u.setRole(Role.ADMIN);
+                            } else if (!obj.has("role") || obj.optString("role").trim().isEmpty()) {
+                                boolean isFullControl = obj.optBoolean("isFullControl", false);
+                                u.setRole(isFullControl ? Role.ADMIN : Role.VIEWER);
                             }
                             users.put(u.getUsername(), u);
                         }
@@ -224,15 +227,38 @@ public class SessionManager {
         String trimmed = token.trim();
         String username = tokenToUsername.get(trimmed);
         if (username == null) return null;
-        return users.get(username);
+        return getUser(username);
     }
 
     public User getUser(String username) {
         if (username == null) return null;
-        return users.get(username);
+        String cleanUser = username.trim();
+        if (cleanUser.isEmpty()) return null;
+
+        User u = users.get(cleanUser);
+        if (u == null) {
+            loadUsersFromPrefs();
+            u = users.get(cleanUser);
+        }
+
+        if (u == null && "admin".equalsIgnoreCase(cleanUser)) {
+            String masterPassword = "admin";
+            if (context != null) {
+                SharedPreferences prefs = context.getSharedPreferences("StoreMePrefs", Context.MODE_PRIVATE);
+                masterPassword = prefs.getString("host_password", prefs.getString("password", "admin"));
+            }
+            List<String> adminPerms = new ArrayList<>();
+            adminPerms.add("/");
+            u = new User("admin", masterPassword, Role.ADMIN, adminPerms, System.currentTimeMillis());
+            users.put("admin", u);
+            persistUsersToPrefs();
+        }
+
+        return u;
     }
 
     public List<User> getAllUsers() {
+        loadUsersFromPrefs();
         return new ArrayList<>(users.values());
     }
 

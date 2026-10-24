@@ -401,7 +401,7 @@ public class HostForegroundService extends Service {
 
                     if (clientRole == Role.UPLOADER) {
                         if ("update_settings".equals(action) || "modify_settings".equals(action) ||
-                            "manage_users".equals(action) || "list_users".equals(action)) {
+                            "manage_users".equals(action)) {
                             org.json.JSONObject res = new org.json.JSONObject();
                             res.put("action", "access_denied");
                             res.put("status", 403);
@@ -410,12 +410,14 @@ public class HostForegroundService extends Service {
                             return;
                         }
                         if ("delete".equals(action) || "delete_permanent".equals(action) || "rename".equals(action) || "move".equals(action)) {
-                            String owner = OwnershipStore.getInstance(HostForegroundService.this).getOwner(effectivePath);
-                            if (!currentClientUser.equals(owner)) {
+                            OwnershipStore store = OwnershipStore.getInstance(HostForegroundService.this);
+                            boolean hasRecorded = store.hasRecordedOwner(effectivePath);
+                            String owner = store.getOwner(effectivePath);
+                            if (hasRecorded && owner != null && !owner.isEmpty() && !currentClientUser.equals(owner) && !"admin".equals(owner)) {
                                 org.json.JSONObject res = new org.json.JSONObject();
                                 res.put("action", "access_denied");
                                 res.put("status", 403);
-                                res.put("message", "Cannot delete files owned by another user");
+                                res.put("message", "Cannot delete or modify files owned by another user");
                                 res.put("path", effectivePath);
                                 if (rtcHolder[0] != null) rtcHolder[0].sendData(res.toString());
                                 return;
@@ -643,15 +645,18 @@ public class HostForegroundService extends Service {
                                     f.getParentFile().mkdirs();
                                     f.createNewFile();
                                 } else {
-                                    String currentOwner = OwnershipStore.getInstance(HostForegroundService.this).getOwner(effectivePath);
-                                    if (clientRole == Role.UPLOADER && !currentClientUser.equals(currentOwner)) {
-                                        org.json.JSONObject res = new org.json.JSONObject();
-                                        res.put("action", "access_denied");
-                                        res.put("status", 403);
-                                        res.put("message", "Cannot overwrite files owned by another user");
-                                        res.put("path", effectivePath);
-                                        if (rtcHolder[0] != null) rtcHolder[0].sendData(res.toString());
-                                        return;
+                                    OwnershipStore store = OwnershipStore.getInstance(HostForegroundService.this);
+                                    if (clientRole == Role.UPLOADER && store.hasRecordedOwner(effectivePath)) {
+                                        String currentOwner = store.getOwner(effectivePath);
+                                        if (currentOwner != null && !currentOwner.isEmpty() && !currentClientUser.equals(currentOwner) && !"admin".equals(currentOwner)) {
+                                            org.json.JSONObject res = new org.json.JSONObject();
+                                            res.put("action", "access_denied");
+                                            res.put("status", 403);
+                                            res.put("message", "Cannot overwrite files owned by another user");
+                                            res.put("path", effectivePath);
+                                            if (rtcHolder[0] != null) rtcHolder[0].sendData(res.toString());
+                                            return;
+                                        }
                                     }
                                 }
                                 long existingSize = f.length();
@@ -693,6 +698,7 @@ public class HostForegroundService extends Service {
                             if (raf != null) {
                                 raf.close();
                             }
+                            currentBinaryUploadPath[0] = null;
                             java.io.File upFile = new java.io.File(effectivePath);
                             OwnershipStore.getInstance(HostForegroundService.this).setOwner(
                                 effectivePath,
@@ -1018,6 +1024,8 @@ public class HostForegroundService extends Service {
                             res.put("model", android.os.Build.MODEL);
                             res.put("batteryLevel", (int)batteryPct);
                             res.put("isCharging", isCharging);
+                            res.put("role", clientRole.getValue());
+                            res.put("username", connectedUsername[0] != null ? connectedUsername[0] : "admin");
                             
                             String allowedPath = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
                             android.content.SharedPreferences prefs = getSharedPreferences("StoreMePrefs", MODE_PRIVATE);
@@ -1045,6 +1053,47 @@ public class HostForegroundService extends Service {
                             
                             if (rtcHolder[0] != null) rtcHolder[0].sendData(res.toString());
                         } catch (Exception e) {}
+                    } else if ("list_users".equals(action)) {
+                        if (clientRole == Role.ADMIN) {
+                            try {
+                                java.util.List<User> list = SessionManager.getInstance(HostForegroundService.this).getAllUsers();
+                                org.json.JSONArray arr = new org.json.JSONArray();
+                                for (User u : list) {
+                                    org.json.JSONObject uo = new org.json.JSONObject();
+                                    uo.put("username", u.getUsername());
+                                    uo.put("role", u.getRole().getValue());
+                                    arr.put(uo);
+                                }
+                                org.json.JSONObject res = new org.json.JSONObject();
+                                res.put("action", "user_list");
+                                res.put("users", arr);
+                                if (rtcHolder[0] != null) rtcHolder[0].sendData(res.toString());
+                            } catch (Exception e) {}
+                        }
+                    } else if ("add_user".equals(action)) {
+                        if (clientRole == Role.ADMIN) {
+                            String newU = req.optString("username", "").trim();
+                            String newP = req.optString("password", "password").trim();
+                            String newR = req.optString("role", "viewer").trim();
+                            if (!newU.isEmpty() && Role.isValidRole(newR)) {
+                                SessionManager.getInstance(HostForegroundService.this).createUser(newU, newP, Role.fromString(newR));
+                            }
+                        }
+                    } else if ("update_user_role".equals(action)) {
+                        if (clientRole == Role.ADMIN) {
+                            String targetU = req.optString("targetUsername", "").trim();
+                            String newR = req.optString("role", "").trim();
+                            if (!targetU.isEmpty() && Role.isValidRole(newR)) {
+                                SessionManager.getInstance(HostForegroundService.this).updateUserRole(targetU, Role.fromString(newR));
+                            }
+                        }
+                    } else if ("remove_user".equals(action)) {
+                        if (clientRole == Role.ADMIN) {
+                            String targetU = req.optString("targetUsername", "").trim();
+                            if (!targetU.isEmpty()) {
+                                SessionManager.getInstance(HostForegroundService.this).deleteUser(targetU);
+                            }
+                        }
                     } else if ("get_share_info".equals(action)) {
                         if (connectedUsername[0] != null && connectedUsername[0].startsWith("share_user_")) {
                             String token = connectedUsername[0].replace("share_user_", "");

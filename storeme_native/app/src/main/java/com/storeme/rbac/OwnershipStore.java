@@ -147,6 +147,27 @@ public class OwnershipStore {
     }
 
     /**
+     * Check if a file has an explicitly recorded ownership record.
+     */
+    public boolean hasRecordedOwner(String filePath) {
+        if (filePath == null || filePath.isEmpty()) {
+            return false;
+        }
+        String norm = normalizePath(filePath);
+        if (ownershipMap.containsKey(norm)) {
+            return true;
+        }
+        String name = new File(norm).getName();
+        for (Map.Entry<String, JSONObject> entry : ownershipMap.entrySet()) {
+            String key = entry.getKey();
+            if (key.endsWith(norm) || norm.endsWith(key) || key.endsWith("/" + name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Record file owner upon upload.
      */
     public void setOwner(String filePath, String username, Role role, long size) {
